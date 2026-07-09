@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: enagram-db
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "YourSecurePassword123!"
+      SA_PASSWORD: "YourSecurePassword123!"
+    ports:
+      - "1433:1433"
+
+  backend:
+    image: enagram-backend
+    container_name: enagram-backend
+    build:
+      context: ./EnagramTransferApp
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+
+  frontend:
+    image: enagram-frontend
+    container_name: enagram-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:5000
+    depends_on:
+      - backend
